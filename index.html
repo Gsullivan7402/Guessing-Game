@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Word Guessing Game</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <div class="start-screen">
+      <h1>Word Guessing Game</h1>
+      <p>Wins: <span id="wins">0</span></p>
+      <p>Losses: <span id="losses">0</span></p>
+      <button onclick="startGame()">Start Game</button>
+      <div class="word-list hidden">
+        <p>Possible words:</p>
+        <ul id="possible-words"></ul>
+      </div>
+    </div>
+    <div class="game-screen hidden">
+      <p>Time left: <span id="timer">20</span> seconds</p>
+      <p>Guesses left: <span id="attempts">10</span></p>
+      <p>Guess the word:</p>
+      <div id="word-container"></div>
+      <input type="text" id="guessInput">
+      <button onclick="checkGuess()">Guess</button>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
+
