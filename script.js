@@ -1,6 +1,5 @@
 const words = [
-  "javascript", "python", "html", "css", "java", "php", "ruby", "typescript", 
-  "cplusplus", "swift", "sql", "nodejs", "react", "angular", "mongodb", "firebase"
+  "variable","array", "modulus", "object", "function", "string", "boolean"
 ];
 
 let randomWord, guessedWord, remainingAttempts, timerInterval, timeLeft, wins = 0, losses = 0;
@@ -14,24 +13,34 @@ function displayPossibleWords() {
   });
 }
 
-function startGame() {
-  document.querySelector('.start-screen').style.display = 'none';
-  document.querySelector('.word-list').style.display = 'block';
-  document.querySelector('.game-screen').style.display = 'block';
+function hide(element) {
+  element.style.display = 'none';
+}
 
-  randomWord = words[Math.floor(Math.random() * words.length)];
-  remainingAttempts = 10;
-  guessedWord = "_".repeat(randomWord.length).split('').join(' ');
+function show(element) {
+  element.style.display = 'block';
+}
 
-  document.getElementById('word-container').innerText = guessedWord;
-  document.getElementById('attempts').innerText = remainingAttempts;
+function getRandomWord() {
+  return words[Math.floor(Math.random() * words.length)];
+}
 
-  timeLeft = 20;
-  document.getElementById('timer').innerText = timeLeft;
+function updateWordDisplay(word) {
+  document.getElementById('word-container').innerText = word;
+}
 
-  timerInterval = setInterval(() => {
+function updateAttemptsDisplay(attempts) {
+  document.getElementById('attempts').innerText = attempts;
+}
+
+function updateTimeDisplay(time) {
+  document.getElementById('timer').innerText = time;
+}
+
+function startTimer() {
+  return setInterval(() => {
     timeLeft--;
-    document.getElementById('timer').innerText = timeLeft;
+    updateTimeDisplay(timeLeft);
     if (timeLeft === 0) {
       clearInterval(timerInterval);
       losses++;
@@ -42,11 +51,81 @@ function startGame() {
   }, 1000);
 }
 
+function handleCorrectGuess(keyPressed) {
+  const updatedWord = randomWord.split('').map((letter, index) => {
+    if (letter === keyPressed) {
+      return keyPressed;
+    } else {
+      return guessedWord.split(' ')[index];
+    }
+  }).join(' ');
+
+  guessedWord = updatedWord;
+  updateWordDisplay(guessedWord);
+
+  if (guessedWord === randomWord) {
+    clearInterval(timerInterval);
+    if (document.getElementById('wins').innerText !== wins.toString()) {
+      wins++;
+      document.getElementById('wins').innerText = wins;
+      const response = prompt('Congratulations! You guessed the word! Would you like to play again? (Yes/No)');
+      if (response && response.toLowerCase() === 'yes') {
+        resetGame();
+      } else {
+      }
+    }
+  }
+}
+function handleIncorrectGuess(keyPressed) {
+  remainingAttempts--;
+  updateAttemptsDisplay(remainingAttempts);
+
+  if (remainingAttempts === 0) {
+    clearInterval(timerInterval);
+    losses++;
+    document.getElementById('losses').innerText = losses;
+    alert('No more attempts left! The word was: ' + randomWord);
+    resetGame();
+  }
+}
+
+function handleKeyPress(event) {
+  const keyPressed = event.key.toLowerCase();
+  if (remainingAttempts > 0) {
+    if (randomWord.includes(keyPressed)) {
+      handleCorrectGuess(keyPressed);
+    } else {
+      handleIncorrectGuess(keyPressed);
+    }
+  }
+}
+
 function resetGame() {
-  document.querySelector('.game-screen').style.display = 'none';
-  document.querySelector('.word-list').style.display = 'none';
-  document.querySelector('.start-screen').style.display = 'block';
+  hide(document.querySelector('.game-screen'));
+  hide(document.querySelector('.word-list'));
+  show(document.querySelector('.start-screen'));
   clearInterval(timerInterval);
+  document.removeEventListener('keydown', handleKeyPress);
+}
+
+function startGame() {
+  hide(document.querySelector('.start-screen'));
+  show(document.querySelector('.word-list'));
+  show(document.querySelector('.game-screen'));
+
+  randomWord = getRandomWord();
+  remainingAttempts = 10;
+  guessedWord = "_".repeat(randomWord.length).split('').join(' ');
+
+  updateWordDisplay(guessedWord);
+  updateAttemptsDisplay(remainingAttempts);
+
+  timeLeft = 20;
+  updateTimeDisplay(timeLeft);
+
+  timerInterval = startTimer();
+
+  document.addEventListener('keydown', handleKeyPress);
 }
 
 displayPossibleWords();
