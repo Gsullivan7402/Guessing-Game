@@ -51,31 +51,50 @@ function startTimer() {
   }, 1000);
 }
 
+function resetGame() {
+  hide(document.querySelector('.game-screen'));
+  hide(document.querySelector('.word-list'));
+  show(document.querySelector('.start-screen'));
+  clearInterval(timerInterval);
+  document.removeEventListener('keydown', handleKeyPress);
+
+  wins = parseInt(document.getElementById('wins').innerText);
+  losses = parseInt(document.getElementById('losses').innerText);
+
+  document.getElementById('wins').innerText = wins;
+  document.getElementById('losses').innerText = losses;
+}
+
 function handleCorrectGuess(keyPressed) {
-  const updatedWord = randomWord.split('').map((letter, index) => {
-    if (letter === keyPressed) {
-      return keyPressed;
+  let correctlyGuessed = false;
+  let updatedWord = '';
+
+  for (let i = 0; i < randomWord.length; i++) {
+    if (randomWord[i] === keyPressed || guessedWord[i] === randomWord[i]) {
+      updatedWord += randomWord[i];
+      correctlyGuessed = true;
     } else {
-      return guessedWord.split(' ')[index];
+      updatedWord += guessedWord[i];
     }
-  }).join(' ');
+  }
 
   guessedWord = updatedWord;
   updateWordDisplay(guessedWord);
 
-  if (guessedWord === randomWord) {
+  if (correctlyGuessed && guessedWord === randomWord) {
     clearInterval(timerInterval);
-    if (document.getElementById('wins').innerText !== wins.toString()) {
-      wins++;
-      document.getElementById('wins').innerText = wins;
-      const response = prompt('Congratulations! You guessed the word! Would you like to play again? (Yes/No)');
-      if (response && response.toLowerCase() === 'yes') {
-        resetGame();
-      } else {
-      }
+    wins++;
+    document.getElementById('wins').innerText = wins;
+
+    const response = confirm('Congratulations! You won! Play again?');
+    if (response) {
+      resetGame();
+    } else {
+      // Handle other cases if needed
     }
   }
 }
+
 function handleIncorrectGuess(keyPressed) {
   remainingAttempts--;
   updateAttemptsDisplay(remainingAttempts);
@@ -84,8 +103,14 @@ function handleIncorrectGuess(keyPressed) {
     clearInterval(timerInterval);
     losses++;
     document.getElementById('losses').innerText = losses;
+
     alert('No more attempts left! The word was: ' + randomWord);
-    resetGame();
+    const response = confirm('Play again?');
+    if (response) {
+      resetGame();
+    } else {
+      // Handle other cases if needed
+    }
   }
 }
 
@@ -98,14 +123,6 @@ function handleKeyPress(event) {
       handleIncorrectGuess(keyPressed);
     }
   }
-}
-
-function resetGame() {
-  hide(document.querySelector('.game-screen'));
-  hide(document.querySelector('.word-list'));
-  show(document.querySelector('.start-screen'));
-  clearInterval(timerInterval);
-  document.removeEventListener('keydown', handleKeyPress);
 }
 
 function startGame() {
